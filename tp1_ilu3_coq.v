@@ -91,7 +91,7 @@ Eval compute in f 2.
 (* On peut aussi demander le type de f 2 *)
 Check f 2.
 (* Bien sûr, il faut que le terme soit bien typé. Ceci échoue : *)
-Check f f.
+Fail Check f f.
 (* Commentez la ligne précédente (ou ajoutez la commande "Fail" devant)
 pour pouvoir continuer *)
 
@@ -177,7 +177,7 @@ Eval compute in et true true.
 (* Similairement à OCaml, on est obligé de définir tous les cas, mais
    le «filtrage non-exhaustif» est une erreur, pas un warning
    (commenter pour pouvoir continuer) *)
-Definition et_non_exhaustif a b :=
+Fail Definition et_non_exhaustif a b :=
   match a with
   | true => b
   end.
@@ -252,19 +252,28 @@ Check 17.
    l'argument principal soit décroissant structurellement (pour
    garantir la terminaison. Sinon, Coq refusera votre définition ! *)
 
-(*
-Fixpoint factorielle n := (* ... (à compléter) *)
 
-Eval compute in (* ... (à compléter) *)
- *)
+Fixpoint factorielle n :=
+  match n with
+  |O => 1
+  |S n1 => S n1*factorielle n1
+  end.
+
+Eval compute in factorielle 3.
 
 (* Définir le prédicat booléen "pair" de type "nat -> bool".
    Puis calculer "pair 6". *)
-(*
-Fixpoint pair n :=  (* ... (à compléter) *)
 
-Eval compute in (* ... (à compléter) *)
- *)
+Fixpoint pair n :=
+  match n with
+  |O =>true
+  |S O => false
+  |S (S n1) => pair n1
+  end.
+
+
+Eval compute in pair 3.
+ 
 
 (* Pour conclure sur cette revue du filtrage et de la récursion en Coq
    voici un exemple de définition d'un prédicat booléen "inf",
@@ -351,16 +360,14 @@ Definition identite : A -> A := fun a => a.
 
 (* prouver les propriétés suivantes *)
 
-(*
-Definition ex0 : B -> B := (* ... (à compléter) *)
+Definition ex0 : B -> B := fun b => b.
 
-Definition ex1 : A -> B -> A := (* ... (à compléter) *)
+Definition ex1 : A -> B -> A := fun a b => a. 
 
-Definition ex2 : A -> B -> B := (* ... (à compléter) *)
+Definition ex2 : A -> B -> B := fun a b => b.
 
-Definition ex3 : A -> (A -> B) -> B := (* ... (à compléter) *)
+Definition ex3 : A -> (A -> B) -> B := fun a f => f a.
 
-Definition ex4 : (A -> B) -> (B -> C) -> A -> C := (* ... (à compléter) *)
+Definition ex4 : (A -> B) -> (B -> C) -> A -> C := fun fab fbc a => fbc (fab a).
 
-Definition ex5 : (A -> B) -> (A -> B -> C) -> A -> C := (* ... (à compléter) *)
- *)
+Definition ex5 : (A -> B) -> (A -> B -> C) -> A -> C := fun fab fabc a => fabc a (fab a).
