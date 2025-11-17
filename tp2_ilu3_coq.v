@@ -259,26 +259,43 @@ Variable R : nat -> nat -> Prop.
 (* Prouver *)
 Lemma ex12 : (forall x, P x) /\ (forall x, Q x) -> (forall x, P x /\ Q x).
 Proof. (* on pourra utiliser «intros x» et apply *)
+  intros Pqx.
   intros x.
-  destruct x as [xp xq].
+  destruct Pqx as [Px Qx].
+  apply conj.
+  -apply Px.
+  -apply Qx.
+Qed.
+
+(* Autre possibilite
+Lemma ex12 : (forall x, P x) /\ (forall x, Q x) -> (forall x, P x /\ Q x).
+Proof. (* on pourra utiliser «intros x» et apply *)
+  intros x.
+  destruct x as [Px Qx].
   split. (* On ne peut pas utiliser apply conj avec des forall explication: split
 fait des trucs chelou dans son coin XD*)
   -apply xp.
   -apply xq.
 Qed.
-
-
+*)
 (* Prouver *)
 Lemma ex13 : (forall x, P x) \/ (forall x, Q x) -> (forall x, P x \/ Q x).
 Proof.
-(* ... (à compléter) *)
-Admitted.
+  intros x.
+  destruct x as [xp | xq].
+  -left.
+  apply xp.
+  -right.
+  apply xq.
+Qed.
 
 (* Essayez de prouver (si c'est possible !) *)
 Lemma ex14 : (forall x, P x \/ Q x) -> (forall x, P x) \/ (forall x, Q x).
 Proof.
-(* ... (à compléter) *)
+  intros x.
 Abort.
+(*pas possible car lemme faux*)
+
 
 (* (H : exists x, …) se détruit avec "destruct H as [x Hx]" *)
 (* et se prouve avec la tactique «exists x» : pour prouver une formule
@@ -296,8 +313,13 @@ Qed.
 (* Prouver *)
 Lemma ex16 : (exists x, P x -> Q x) -> (forall x, P x) -> exists x, Q x.
 Proof.
-(* ... (à compléter) *)
-Admitted.
+  intros Hex.
+  destruct Hex as [x Hx].
+  intros y.
+  exists x.
+  auto.
+Qed.
+
 
 End CalculPredicats.
 
@@ -320,8 +342,15 @@ Qed.
 (* Prouver *)
 Lemma and_commutatif : forall a b, a && b = b && a.
 Proof.
-(* ... (à compléter) *)
-Admitted.
+  intros a b.
+  destruct  a.
+  -destruct b.
+   easy.
+   easy.
+  -destruct b.
+   easy.
+   easy.
+Qed.
 
 (* on considère l'addition sur les entiers définie dans la librairie Coq par :
 
@@ -342,7 +371,7 @@ Lemma plus0n : forall n, plus 0 n = n.
 Proof.
 intros n.
 simpl.
-reflexivity.
+easy. (* ou reflexivity *)
 Qed.
 
 (* mais on peut aussi écrire directement *)
@@ -379,20 +408,32 @@ Qed.
 (* Prouver *)
 Lemma plus1n : forall n, plus 1 n = S n.
 Proof.
-(* ... (à compléter) *)
-Admitted.
+intros n.
+simpl.
+easy.
+Qed.
 
 (* Prouver *)
 Lemma plusSn : forall n m, S (plus n m) = plus n (S m).
 Proof.
-(* ... (à compléter) *)
-Admitted.
+induction n.
+-easy.
+-simpl.
+  intros m.
+  rewrite IHn.
+  easy.
+Qed.
 
 (* Prouver (un peu plus dur, ne pas hésiter à utiliser les lemmes précédents)  *)
 Lemma plus_commutatif : forall n m, plus n m = plus m n.
 Proof.
-(* ... (à compléter) *)
-Admitted.
+induction n.
+-easy.
+-simpl.
+  intros m.
+  rewrite IHn.
+  easy. (* ou apply plusSn.*)
+Qed.
 
 (* on peut aussi utiliser les opérateurs +,* qui ne sont que des notations *)
 Lemma plus_commutatif_bis : forall n m, n + m = m + n.
@@ -513,12 +554,15 @@ Include L.
 
 (* implémenter la concaténation de deux liste "app" *)
 Definition app (l l' : L.list_nat) : L.list_nat :=
-  L.nil. (* ... (à compléter (remplacer L.nil par votre implémentation)) *)
+ list_nat_it L.list_nat l' (fun x r res => cons x res) l.
 
 Lemma app_length : forall l l', L.length (app l l') = L.length l + L.length l'.
 Proof.
-(* ... (à compléter) *)
-Admitted.
+intros l l'.
+apply (list_nat_ind (fun l => forall l', L.length (app l l') = L.length l + L.length l')).
+-
+
+Qed.
 
 End ListNatExt.
 
