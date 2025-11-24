@@ -560,16 +560,101 @@ Lemma app_length : forall l l', L.length (app l l') = L.length l + L.length l'.
 Proof.
 intros l l'.
 apply (list_nat_ind (fun l => forall l', L.length (app l l') = L.length l + L.length l')).
--
+- unfold app.
+intro.
+rewrite (list_nat_it_nil). (*Coq trouve tout seulles argument*)
+rewrite L.length_nil.
+reflexivity.
+-unfold app.
+intros.
+rewrite (list_nat_it_cons).
+rewrite L.length_cons.
+rewrite H.
+(*rewrite h remplace 
+--L.length (list_nat_it L.list_nat l'0 (fun (x : nat) (_ : list_nat) (res : L.list_nat) => cons x res) l0)-- 
+par 
+--L.length l0 + L.length l'--*)
+rewrite L.length_cons.
+reflexivity.  (*ou easy*)
 
 Qed.
 
 End ListNatExt.
 
-(* Implémenter un module de type ListNat *)
-(*
+(* Implémenter un module de type ListNat 
+
+Module Type ListNat.
+  Parameter list_nat : Type.
+  Parameter nil : list_nat.
+  Parameter cons : nat -> list_nat -> list_nat.
+  Parameter list_nat_it :
+    forall T (f_nil : T) (f_cons : nat -> list_nat -> T -> T), list_nat -> T.
+  Parameter length : list_nat -> nat.
+
+  Axiom list_nat_ind :
+    forall (P : list_nat -> Prop),
+      P nil -> (forall (a : nat) (l : list_nat), P l -> P (cons a l)) ->
+      forall l : list_nat, P l.
+
+  Axiom list_nat_it_nil :
+    forall T f_nil f_cons, list_nat_it T f_nil f_cons nil = f_nil.
+  Axiom list_nat_it_cons :
+    forall T f_nil f_cons x l,
+      list_nat_it T f_nil f_cons (cons x l)
+      = f_cons x l (list_nat_it T f_nil f_cons l).
+
+  Axiom length_nil : length nil = 0.
+  Axiom length_cons : forall x l, length (cons x l) = 1 + length l.
+End ListNat.*)
+
 Module ListNatImpl : ListNat.
-(* ... (à compléter) *)
+Definition list_nat := list nat.
+Definition nil: list_nat:= [].
+Definition cons (e:nat) (l: list_nat) := e::l.
+
+Fixpoint length (l:list_nat) := 
+match l with [] => 0 | _::q => 1+length q end.
+
+Fixpoint list_nat_it T (f_nil : T) (f_cons : nat -> list_nat -> T -> T) (l:list_nat):T := 
+match l with 
+[] => f_nil
+|t::q => f_cons t q (list_nat_it T f_nil f_cons q)
+end.
+
+
+Lemma list_nat_ind : forall (P : list_nat -> Prop),
+      P nil -> (forall (a : nat) (l : list_nat), P l -> P (cons a l)) ->
+      forall l : list_nat, P l.
+Proof. 
+apply list_ind.
+Qed.
+
+Lemma list_nat_it_nil : forall T f_nil f_cons, list_nat_it T f_nil f_cons nil = f_nil.
+Proof.
+intros.
+simpl. (* ou easy *)
+reflexivity.
+Qed.
+
+Lemma list_nat_it_cons : forall T f_nil f_cons x l,
+      list_nat_it T f_nil f_cons (cons x l)
+      = f_cons x l (list_nat_it T f_nil f_cons l).
+Proof.
+intros.
+simpl. (* ou easy *)
+reflexivity.
+Qed.
+
+Lemma length_nil : length nil = 0.
+Proof.
+auto.
+Qed.
+
+Lemma length_cons : forall x l, length (cons x l) = 1 + length l.
+Proof.
+auto.
+Qed.
+
 (* (penser à list_ind pour list_nat_ind) *)
 End ListNatImpl.
 *)
