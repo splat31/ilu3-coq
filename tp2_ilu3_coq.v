@@ -657,7 +657,6 @@ Qed.
 
 (* (penser à list_ind pour list_nat_ind) *)
 End ListNatImpl.
-*)
 
 (* on peut alors appliquer le foncteur ListNatExt *)
 Module L' := ListNatExt ListNatImpl.
@@ -665,5 +664,9 @@ Module L' := ListNatExt ListNatImpl.
 (* et utiliser le module résultant *)
 Lemma app3 : forall l l', L'.length (L'.app l l') = L'.length (L'.app l' l).
 Proof.
-(* ... (à compléter) *)
-Admitted.
+intros.
+rewrite L'.app_length.
+rewrite L'.app_length.
+Search (_+_).
+apply plus_commutatif.
+Qed.
